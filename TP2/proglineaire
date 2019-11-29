@@ -1,0 +1,57 @@
+A-
+Minimize p = 4t11 + 3t12 + 6t13 + 3t21 + 5t22 + 3t23 subject to 
+
+t11 + t21 >= 50
+t12 + t22 >= 70
+t13 + t23 >= 80
+t11 + t12 + t13 <= 100
+t21 + t22 + t23 <= 150
+
+
+B-
+Minimize p = 10000x + 7000y + 5000z subject to 
+5x + 2y + z >= 195
+12x + 15y + 5z >= 585
+2x + 2y + 3z >= 260
+x -3z -3y <= 0
+
+
+
+C - 
+
+Maximize p = 2000x + 3000y subject to 
+10x + 12y <= 100
+5x + 4y <= 45
+14x + 30y <= 210
+
+
+D - 
+
+Minimize p =  7a +7b + 7c + 3s + 3t subject to 
+
+x + a   >= 900
+x+a-s<=900
+ x + a + y + b >= 2000
+x+a+y+b-t<=2000
+x + a+y + b  + z + c >= 3700
+
+
+x <= 1200
+y <= 1200
+z <= 1200
+a <= 400
+b <= 400
+c <= 400
+
+
+
+
+
+
+
+
+
+
+
+
+
