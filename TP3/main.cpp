@@ -4,41 +4,13 @@
 #include <vector>
 #include <random>
 #include <time.h>
-using namespace std;
+#include <limits>
 
 
-int UBPQ(vector<vector<int>> t,vector<int> vecteur){
-
-    int resultat=0;
-    for(int i=0;i<t.size();i++){
-      for(int j=0;j<t.size();j++){
-        resultat+=t[i][j]*vecteur[i]*vecteur[j];
-      }
-
-    }
-    return resultat;
-}
-
-int meilleur_voisin(vector<int> x){
-/*  vector<int> bitAAChanger;
-  int meilleurValeur=INFINY;
-  for(int i=0;i<X.size();i++){
-    X[i]= !X[i];
-    if(UBQP(X)<=meilleurValeur){
-      bitAAChanger.push_back(i);
-    }
-  }*/
-  // random
-}
-int main()
-{
-  ifstream monFlux {"./partition6.txt"  };
+void lectureDonnees(const char *fichier,std::vector<std::vector<int>> &matrice,int &tailleMatrice,int &p){
+  std::ifstream monFlux {fichier};
 
   int nombre;
-  int tailleMatrice;
-  int p;
-
-  vector<vector<int>> t;
 
   if(monFlux){
 
@@ -46,41 +18,87 @@ int main()
     monFlux>>p;
 
     for(int i=0;i<tailleMatrice;i++){
-      t.push_back(vector<int>(tailleMatrice));
+      matrice.push_back(std::vector<int>(tailleMatrice));
       for (int j=0; j < tailleMatrice; j++){
         monFlux>>nombre;
 
-        t[i][j]=nombre;
+        matrice[i][j]=nombre;
       }
     }
-    //Tout est prêt pour la lecture.
+    //Tout est prêmatrice pour la lecture.
   }
   else
   {
-    cout << "ERREUR: Impossible d'ouvrir le fichier en lecture." << endl;
+    std::cout << "ERREUR: Impossible d'ouvrir le fichier en lecture." << std::endl;
   }
 
-  cout <<"tailleMatrice = "<<tailleMatrice<<endl;
-  cout <<"p = "<<p<<endl;
+}
 
-  cout << " Matrice = "<<endl;
-  for(int i=0;i<tailleMatrice;i++){
-    for(int j=0;j<tailleMatrice;j++){
-      cout << t[i][j] << " ";
+int UBPQ(const std::vector<std::vector<int>> &matrice,const std::vector<int> &vecteur){
+
+  int resultat=0;
+  for(unsigned int i=0;i<matrice.size();i++){
+    for(unsigned int j=0;j<matrice.size();j++){
+      resultat+=matrice[i][j]*vecteur[i]*vecteur[j];
     }
-    cout<<endl;
   }
-  vector<int> vecteur={1,1,0,1,0,0};
+  return resultat;
+}
+
+std::vector<int> meilleur_voisin(const std::vector<std::vector<int>> &matrice,std::vector<int> x){
+  std::vector<int> bitsAChanger;
+  int meilleurValeur=std::numeric_limits<int>::infinity();
+  for(unsigned int i=0;i<matrice.size();i++){
+    x[i]= !x[i];
+    int resultatUBPQ = UBPQ(matrice,x);
+    if(resultatUBPQ<=meilleurValeur){
+      bitsAChanger.push_back(i);
+      meilleurValeur=resultatUBPQ;
+    }
+    x[i]= !x[i];
+  }
+  // random
   srand(time(0));
-  cout << " Vecteur : ";
+  int positionBit = bitsAChanger[(rand()%bitsAChanger.size())];
+  x[positionBit]=!x[positionBit];
+
+  return x;
+}
+
+int main(int argc, char** argv)
+{
+  int tailleMatrice;
+  int p;
+
+  std::vector<std::vector<int>> matrice;
+
+  lectureDonnees(argv[1],matrice,tailleMatrice,p);
+  std::cout <<"tailleMatrice = "<<tailleMatrice<<std::endl;
+  std::cout <<"p = "<<p<<std::endl;
+
+  std::cout << " Matrice = "<<std::endl;
+  for( int i=0;i<tailleMatrice;i++){
+    for( int j=0;j<tailleMatrice;j++){
+      std::cout << matrice[i][j] << " ";
+    }
+    std::cout<<std::endl;
+  }
+  std::vector<int> vecteur={1,1,0,1,0,0};
+  srand(time(0));
+  std::cout << " Vecteur : ";
   for(int i=0;i<tailleMatrice;i++){
     //vecteur[i]=(rand()%2);
-    cout << vecteur[i]<<" ";
+    std::cout << vecteur[i]<<" ";
   }
-  cout<<endl;
+  std::cout<<std::endl;
 
 
-
-  cout << "Resultat = "<<UBPQ(t,vecteur)<<endl;
+  std::vector<int> vecteurMeilleurVoisin =meilleur_voisin(matrice,vecteur) ;
+  std::cout << "Resultat = ";
+  for(int i=0;i<tailleMatrice;i++){
+    //vecteur[i]=(rand()%2);
+    std::cout << vecteurMeilleurVoisin[i]<<" ";
+  }
+  std::cout  << '\n';
   return 0;
 }
