@@ -5,6 +5,7 @@
 #include <random>
 #include <time.h>
 #include <limits>
+#include <algorithm>
 
 
 void lectureDonnees(const char *fichier,std::vector<std::vector<int>> &matrice,int &tailleMatrice,int &p){
@@ -61,8 +62,6 @@ std::vector<int> meilleur_voisin(const std::vector<std::vector<int>> &matrice,st
   }
   // random
   srand(time(NULL));
-
-
   int positionBit = bitsAChanger[(rand()%bitsAChanger.size())];
   x[positionBit]=!x[positionBit];
 
@@ -92,8 +91,8 @@ std::vector<int> varianteSteepestHillClimbing(const std::vector<std::vector<int>
   int meilleurValeur=std::numeric_limits<int>::max();
   std::vector<int> resultat;
   while(nbEssai<=maxEssai){
-    std::cout<<" Essai "<<nbEssai<<" "<<std::endl;
-    std::cout<<"Vecteur : "<<std::endl;
+    //  std::cout<<" Essai "<<nbEssai<<" "<<std::endl;
+    //  std::cout<<"Vecteur : "<<std::endl;
     for(unsigned int i=0;i<x.size();i++){
 
       std::cout << x[i]<<" ";
@@ -114,6 +113,106 @@ std::vector<int> varianteSteepestHillClimbing(const std::vector<std::vector<int>
     }
   }
   return resultat;
+}
+
+std::vector<std::vector<int>> voisinsNonTabous( std::vector<int> &x,const std::vector<std::vector<int>> &tabou){
+  std::vector<std::vector<int>> listeNonTabou(0);
+  for(unsigned int i=0;i<x.size();i++){
+    x[i]= !x[i];
+
+    if( std::find(tabou.begin(), tabou.end(), x) != tabou.end()) {
+      /* v contains x
+      std::cout<<"Vecteur reconnu : ";
+      for(unsigned int i=0;i<x.size();i++){
+
+      std::cout << x[i]<<" ";
+    }
+    std::cout<<std::endl;*/
+  } else {
+    /*std::cout<<"Vecteur pas reconnu : ";
+    for(unsigned int i=0;i<x.size();i++){
+
+    std::cout << x[i]<<" ";
+  }
+  std::cout<<std::endl;*/
+  listeNonTabou.push_back(x);
+}
+x[i]= !x[i];
+}
+return listeNonTabou;
+}
+
+std::vector<int> meilleur_voisin_non_Tabou(const std::vector<std::vector<int>> &matrice,const std::vector<std::vector<int>> &listeNonTabou){
+  std::vector<int> meilleursVoisinsNonTabous;
+  int meilleurValeur=std::numeric_limits<int>::max();
+  //std::cout<<"----------------"<<std::endl;
+  for(unsigned int i=0;i<listeNonTabou.size();i++){
+
+    int resultatUBPQ = UBPQ(matrice,listeNonTabou[i]);
+    /*std::cout<<"Vecteur calculé : ";
+    for(unsigned int j=0;j<listeNonTabou[i].size();j++){
+
+    std::cout << listeNonTabou[i][j]<<" ";
+  }
+  std::cout<<std::endl;
+  std::cout<<" Resultat UBPQ : "<<resultatUBPQ<<" v = "<<meilleurValeur<<std::endl;*/
+  if(resultatUBPQ<=meilleurValeur){
+    if(resultatUBPQ<meilleurValeur){
+      meilleursVoisinsNonTabous.clear();
+    }
+
+    meilleursVoisinsNonTabous.push_back(i);
+    meilleurValeur=resultatUBPQ;
+  }
+}
+//std::cout<<"----------------"<<std::endl;
+//srand(time(NULL));
+return listeNonTabou[meilleursVoisinsNonTabous[rand()%meilleursVoisinsNonTabous.size()]];
+
+}
+
+std::vector<int> tabou(const std::vector<std::vector<int>> &matrice,std::vector<int> x,const int &maxDeplacement,const unsigned int &k){
+  std::vector<std::vector<int>> tabou;
+  int nbDeplacement=0;
+  bool plusVoisinTabou = false;
+  std::vector<std::vector<int>> listeNonTabou(0);
+  std::vector<int> xprime;
+  std::vector<int> msol=x;
+  do{
+    /*std::cout<<" ---- Vecteur base : ";
+    for(unsigned int i=0;i<x.size();i++){
+
+      std::cout << x[i]<<" ";
+    }
+    std::cout<<std::endl;*/
+    listeNonTabou = voisinsNonTabous(x,tabou);
+
+    //std::cout<<" Liste t : "<<listeNonTabou.size()<<" nbD : "<<nbDeplacement<<" tabou : "<<tabou.size()<<std::endl;
+    if(listeNonTabou.size()!=0){
+      xprime=meilleur_voisin_non_Tabou(matrice,listeNonTabou);
+    }else{
+      plusVoisinTabou=true;
+    }
+    if(tabou.size()<k){
+      tabou.push_back(x);
+    }
+    //  std::cout<<"Xp : "<<UBPQ(matrice,xprime)<<" Msol : "<<UBPQ(matrice,msol)<<std::endl;
+    if(UBPQ(matrice,xprime)<UBPQ(matrice,msol)){
+      msol=xprime;
+    }
+    x=xprime;
+    nbDeplacement++;
+    listeNonTabou.clear();
+  }while(nbDeplacement<maxDeplacement && plusVoisinTabou==false);
+
+  /*std::cout << " Tabou = "<<std::endl;
+  for(unsigned int i=0;i<tabou.size();i++){
+    for(unsigned int j=0;j<x.size();j++){
+      std::cout << tabou[i][j] << " ";
+    }
+    std::cout<<std::endl;
+  }*/
+  return msol;
 }
 
 int main(int argc, char** argv)
@@ -139,7 +238,7 @@ std::cout<<std::endl;
 
 std::vector<int> vecteur(tailleMatrice);
 srand(time(NULL));
-std::cout << " Vecteur : ";
+std::cout << " -- Vecteur : -- ";
 for(int i=0;i<tailleMatrice;i++){
   vecteur[i]=(rand()%2);
   std::cout << vecteur[i]<<" ";
@@ -147,13 +246,14 @@ for(int i=0;i<tailleMatrice;i++){
 std::cout<<std::endl;
 
 
-std::vector<int> vecteurMeilleurVoisin =varianteSteepestHillClimbing(matrice,vecteur,40,3) ;
+std::vector<int> vecteurMeilleurVoisin =tabou(matrice,vecteur,1040,740) ;
 std::cout << "Meilleur voisin = ";
 for(int i=0;i<tailleMatrice;i++){
   std::cout << vecteurMeilleurVoisin[i]<<" ";
 }
 std::cout  << std::endl;
 
+std::cout << "UBPQ : " <<UBPQ(matrice,vecteurMeilleurVoisin)<<std::endl;
 
 
 return 0;
