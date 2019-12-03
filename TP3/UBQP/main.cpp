@@ -224,9 +224,10 @@ std::vector<int> tabou(const std::vector<std::vector<int>> &matrice,std::vector<
   //  std::cout<<"Xp : "<<UBPQ(matrice,xprime)<<" Msol : "<<UBPQ(matrice,msol)<<std::endl;
   if(UBPQ(matrice,xprime)<UBPQ(matrice,msol)){
     msol=xprime;
+    nbDeplacement++;
   }
   x=xprime;
-  nbDeplacement++;
+
   listeNonTabou.clear();
 }while(nbDeplacement<maxDeplacement && plusVoisinTabou==false);
 

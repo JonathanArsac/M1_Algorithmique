@@ -60,7 +60,7 @@ std::vector<int> meilleur_voisin(const std::vector<std::vector<double>> &matrice
       tournee[i]=tournee[j];
       tournee[j]=tempo;
       double resultatVoyageur = voyageur(matriceDistance,tournee);
-      std::cout<<" res "<<resultatVoyageur<<" val : "<<meilleurValeur<<std::endl;
+      //std::cout<<" res "<<resultatVoyageur<<" val : "<<meilleurValeur<<std::endl;
       if(resultatVoyageur<=meilleurValeur){
         if(resultatVoyageur<meilleurValeur){
           resultats.clear();
@@ -233,9 +233,10 @@ std::vector<int> tabou(const std::vector<std::vector<double>> &matrice,std::vect
   //  std::cout<<"Xp : "<<UBPQ(matrice,xprime)<<" Msol : "<<UBPQ(matrice,msol)<<std::endl;
   if(voyageur(matrice,xprime)<voyageur(matrice,msol)){
     msol=xprime;
+    nbDeplacement++;
   }
   x=xprime;
-  nbDeplacement++;
+
   listeNonTabou.clear();
 }while(nbDeplacement<maxDeplacement && plusVoisinTabou==false);
 
@@ -246,6 +247,8 @@ std::cout << tabou[i][j] << " ";
 }
 std::cout<<std::endl;
 }*/
+//std::cout << " Nb Deplacement total = "<<nbDeplacement<<std::endl;
+
 return msol;
 }
 
